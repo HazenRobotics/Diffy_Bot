@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -8,6 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.DirectionalVector;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 public class DiffyDrivePod{
+    public static double KP = 0, KI = 0, KD = 0, KF = 0;
     private DcMotorEx top, bottom;
     private CotEncoder encoder;
     private PIDController pid;
@@ -23,7 +28,7 @@ public class DiffyDrivePod{
         this.top = hw.get(DcMotorEx.class, top);
         this.bottom = hw.get(DcMotorEx.class, bottom);
         this.encoder = new CotEncoder(hw, encoder);
-        this.pid = new PIDController(0,0,0,0);
+        this.pid = new PIDController(KP,KI,KD,KF);
     }
 
     //Calculates the rotation the swerve pod needs to rotate to.
@@ -116,6 +121,18 @@ public class DiffyDrivePod{
 
         //Updates the rotation of the pod
         update();
+    }
+
+    @NonNull
+    @SuppressLint("DefaultLocale")
+    public String toString(){
+        return String.format("Invert State: %d\n" +
+                             "Target Angle: %f\n" +
+                             "Current Angle Data: %s\n",
+                            invertState,
+                            targetAngle.getAngle(),
+                            encoder.toString()
+                            );
     }
 
 }
