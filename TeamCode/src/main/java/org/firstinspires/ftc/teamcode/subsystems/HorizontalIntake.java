@@ -16,8 +16,11 @@ public class HorizontalIntake {
 
     //Internal variables
     private DcMotorEx left, right;
+    //Assume there will be a limit switch/sensor for resetting offsets to avoid drift
     //State variables
     private double targetExtension, targetSide;
+
+    private int extensionOffset, shiftOffset;
 
 
     HorizontalIntake(HardwareMap hw){
@@ -46,7 +49,7 @@ public class HorizontalIntake {
         //Assume motors spin together --> extend/retract
         //Spin opposite --> side-to-side
         targetExtension += extension * EXTENSION_SENSITIVITY;
-        targetSide += sideShift * EXTENSION_SENSITIVITY;
+        targetSide += sideShift * SHIFT_SENSITIVITY;
         update();
     }
 
@@ -63,12 +66,54 @@ public class HorizontalIntake {
     }
 
     /**
+     * To be used/called when a magnetic limit switch is activated
+     * This will reset the shifting offset in assumption that the
+     * current position of the deposit is centered
+     */
+    public void resetShiftOffset(){
+        /*Take the current difference of the motors
+        To reset, the intake system should be in the center of it's shift
+        Thus, the "side" movement should be 0.
+        If there the motors claim different, then we need to shift them  so the difference
+        becomes 0 */
+        shiftOffset = (left.getCurrentPosition() - right.getCurrentPosition()) / 2;
+        /*Ex:
+        L = 100, R= 200
+        Diff = -100
+        Offset = Diff / 2 = -50
+        L = 100 - Offset = 150
+        R = 200 + Offset = 150
+        */
+    }
+
+    /**
+     * To be used/called when a limit switch is activated
+     * This will reset the extension offset in the assumption that the
+     * current position
+     */
+    public void resetExtensionOffset(){
+        /*
+        In this instance, the average position of the motors is 0
+        Thus, the current average subtracted from the left and right will be the new "0"
+         */
+        extensionOffset = (left.getCurrentPosition() + right.getCurrentPosition()) / 2;
+        /*
+        Ex:
+        L = 100, R = 200
+        Avg = (L + R) / 2 = 150
+        L = 100 - Avg = -50
+        R = 200 - Avg = 50
+        New Avg = 0
+         */
+    }
+
+    /**
      * Updates the target positions for the left and right positions
      * Without this function, nothing should move.
      */
     public void update(){
-        left.setTargetPosition((int) (targetExtension + targetSide));
-        right.setTargetPosition((int) (targetExtension - targetSide));
+        left.setTargetPosition((int) (targetExtension + targetSide) - extensionOffset - shiftOffset);
+        right.setTargetPosition((int) (targetExtension - targetSide) - extensionOffset + shiftOffset);
     }
 
     @SuppressLint("DefaultLocale")
@@ -79,13 +124,17 @@ public class HorizontalIntake {
                              "Target Shift: %d\n" +
                              "Actual Shift: %d\n\n" +
                              "Left Motor Pos: %d\n" +
-                             "Right Motor Pos: %d\n",
+                             "Right Motor Pos: %d\n" +
+                            "Extension Offset: %d\n " +
+                            "Shift Offset: %d\n",
                             (int) targetExtension,
                 (left.getCurrentPosition() + right.getCurrentPosition())/2,
                             (int) targetSide,
                 (left.getCurrentPosition() - right.getCurrentPosition())/2,
                             left.getCurrentPosition(),
-                            right.getCurrentPosition()
+                            right.getCurrentPosition(),
+                            extensionOffset,
+                            shiftOffset
         );
     }
 }
