@@ -41,7 +41,7 @@ public class VerticalDeposit {
     /**
      * TeleOp implementation to allow easy input via joysticks/triggers
      * @param extension Extension power [-1,1]. (Negative being retracting)
-     * @param rotation Shift power [-1,1]. (Negative shifting the opposite direction)
+     * @param rotation Shift power [-1,1]. (Negative rotating "out" of the bot)
      */
     public void power(double extension, double rotation){
         //Assume motors spin together --> extend/retract

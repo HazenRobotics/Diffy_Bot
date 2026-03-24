@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.DiffyDrive;
 import org.firstinspires.ftc.teamcode.utils.GamepadEvents;
 
+@TeleOp(name="Drive Test", group="Tests")
 public class DriveTest extends LinearOpMode {
 
     @Override
